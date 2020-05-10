@@ -212,7 +212,6 @@ class MTagImporter(BeetsPlugin):
                 for path, data in loader.items():
                     matching = lib.items(PathQuery('path', path))
                     if any(m.path == path.encode() for m in matching):
-                        print('skip %r because it is already present' % path)
                         continue
                     print('add %r' % path)
                     item = Item(path=path)
