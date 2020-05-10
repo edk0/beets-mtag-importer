@@ -6,7 +6,7 @@ from pathlib import Path
 
 from beets.plugins import BeetsPlugin
 from beets.ui import Subcommand
-from beets.library import Item
+from beets.library import Item, PathQuery
 from beets.mediafile import MediaFile
 from beets.util import syspath
 
@@ -210,8 +210,12 @@ class MTagImporter(BeetsPlugin):
                 loader = MTagLoader(child)
                 al = []
                 for path, data in loader.items():
+                    matching = lib.items(PathQuery('path', path))
+                    if any(m.path == path.encode() for m in matching):
+                        print('skip %r because it is already present' % path)
+                        continue
+                    print('add %r' % path)
                     item = Item(path=path)
-                    print(path)
                     mf = MediaFile(syspath(item.path))
                     for field in AUDIO_FIELDS:
                         v = getattr(mf, field)
