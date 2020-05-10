@@ -7,6 +7,8 @@ from pathlib import Path
 from beets.plugins import BeetsPlugin
 from beets.ui import Subcommand
 from beets.library import Item
+from beets.mediafile import MediaFile
+from beets.util import syspath
 
 
 class MTagDate(datetime.date):
@@ -127,6 +129,8 @@ class DateHack(DependentConverter):
         return datetime.date(v.year, v.month, v.day)
 
 
+AUDIO_FIELDS = ['length', 'bitrate', 'format', 'samplerate', 'bitdepth', 'channels']
+
 TAGS = {
     'title': Converter('title'),
     'artist': ListConverter('artist'),
@@ -208,6 +212,10 @@ class MTagImporter(BeetsPlugin):
                 for path, data in loader.items():
                     item = Item(path=path)
                     print(path)
+                    mf = MediaFile(syspath(item.path))
+                    for field in AUDIO_FIELDS:
+                        v = getattr(mf, field)
+                        item[field] = v
                     values = {}
                     for tag, converter in TAGS.items():
                         v = converter.get(data)
